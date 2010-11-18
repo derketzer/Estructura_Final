@@ -149,7 +149,42 @@ public class Limites extends JApplet {
         super.paint(g);
         g.setColor(new Color(255, 255, 255));
         g.fillRect(10, 150, 780, 440);
+
         g.setColor(new Color(0, 0, 0));
-        g.drawLine(10, 370, 780, 370);
+        g.drawLine(10, 370, 790, 370);
+        g.drawLine(400, 150, 400, 590);
+
+        g.setColor(new Color(255, 0, 0));
+        //g.drawString("Y", 410, 170);
+        //g.drawString("X", 770, 350);
+
+        g.setColor(new Color(0, 0, 0));
+        //20 es 1 en X
+        //780 es 3 en X
+
+        //370 es 0 en Y
+        //150 es max en Y
+        //590 es min en Y
+        //220 es dif en Y
+
+        int pasoY = (int)(220/(valoresX[10]+2));
+
+        for(int k=370; k>=150; k-=pasoY){
+            g.drawString(((370-k)/pasoY)+"", 390, k);
+        }
+
+        for(int j=20; j<=780; j+=76){
+            g.drawLine(j, 370, j, 380);
+            g.drawString(Encabezados[(j-20)/76], j-8, 395);
+
+            if(j>20){
+                g.drawLine(
+                        j-76,
+                        (int)((370-((valoresX[(j-96)/76]+2)*pasoY))),
+                        j,
+                        (int)((370-((valoresX[(j-20)/76]+2)*pasoY)))
+                );
+            }
+        }
     }
 }
