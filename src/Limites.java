@@ -11,51 +11,106 @@ import javax.swing.table.*;
 /**
  *
  * @author Der Ketzer
+ * @email der.ketzer@gmail.com
+ * @version 1.0
  */
 public class Limites extends JApplet {
-    /**
-     * Initialization method that will be called after the applet is loaded
-     * into the browser.
-    */
-
     GridBagLayout Layout = new GridBagLayout();
     Container Pantalla = getContentPane();
     GridBagConstraints GBC = new GridBagConstraints();
 
     JLabel fun1, fun2, fun3, fun4;
     String[] Encabezados;
+    Double[] valoresX;
 
     JTable Tabla;
     TableModel Modelo;
+    JScrollPane Scroll;
 
     int m=0, tam=0;
-    double n=0.0;
+    double n=0.0, ini=0.0, fin=0.0, mitad=0.0, lim=0.0;
 
     Object Datos[][];
 
+    String temp = "";
+
     public void init() {
-        // TODO start asynchronous download of heavy resources
         fun1 = new JLabel("f(x)=(x^2-4)/(x-2)");
         fun2 = new JLabel("f(x)=ln(x)");
         fun3 = new JLabel("f(x)=4/(1+x^2)");
         fun4 = new JLabel("f(x)=blu blu");
 
-        tam = 200/25;
+        Encabezados = new String[11];
+        valoresX = new Double[11];
 
-        Encabezados = new String[tam+1];
+        ini = 1.0;
+        fin = 3.0;
+        mitad = (fin-ini);
+        n = 0.0;
 
-        for(n=-1.0; n<=1.0; n+=0.25){
-            Encabezados[m] = n+"";
-            m++;
+        Encabezados[10] = fin+"";
+        valoresX[10] = fin;
+
+        lim = mitad;
+
+        for(m=0; m<10; m++){
+            n += (lim-n)/2.0;
+            valoresX[m] = n;
+            temp = n+"";
+
+            if(temp.length()>4)
+                temp = temp.substring(0,4);
+
+            Encabezados[m] = temp;
+
+            if(m==5){
+                Encabezados[5] = mitad+"";
+                valoresX[5] = mitad;
+                lim = fin;
+                n = mitad;
+            }
         }
 
-        Datos = new Object[11][1];
+        Datos = new Object[1][11];
 
         for(int i=0; i<1; i++){
-            for(int j=0; j<1; j++){
+            for(int j=0; j<11; j++){
                 Datos[i][j] = "";
             }
         }
+
+        Modelo = new AbstractTableModel(){
+            public int getColumnCount(){
+                return Encabezados.length;
+            }
+            public int getRowCount(){
+                return 1;
+            }
+            public Object getValueAt(int row, int col){
+                return Datos[0][col];
+            }
+            public String getColumnName(int c){
+                return Encabezados[c];
+            }
+            public boolean isCellEditable(int row, int col){
+                return false;
+            }
+            public void setValueAt(Object objeto, int col){
+                Tabla.repaint();
+                temp = (valoresX[col]*valoresX[col] + 2.0)+"";
+
+                if(temp.length()>4)
+                    temp = temp.substring(0,4);
+
+                Datos[0][col] = temp;
+            }
+            public Class getColumnClass(int c){
+                return getValueAt(0,c).getClass();
+            }
+        };
+
+        Tabla = new JTable(Modelo);
+        Scroll = new JScrollPane(Tabla);
 
         setLayout(Layout);
 
@@ -63,6 +118,7 @@ public class Limites extends JApplet {
         buildConstraints(fun2, 1, 0, 1, 1, GridBagConstraints.NONE);
         buildConstraints(fun3, 2, 0, 1, 1, GridBagConstraints.NONE);
         buildConstraints(fun4, 3, 0, 1, 1, GridBagConstraints.NONE);
+        buildConstraints(Scroll, 0, 1, 4, 1, GridBagConstraints.BOTH);
 
         setSize(800,600);
     }
@@ -80,6 +136,20 @@ public class Limites extends JApplet {
         Layout.setConstraints(componente, GBC);
         Pantalla.add(componente);
     }
+    
+    private void limpiame(){
+        for(int i=0; i<11; i++){
+            Datos[0][i] = "";
+        }
 
-    // TODO overwrite start(), stop() and destroy() methods
+        Tabla.repaint();
+    }
+
+    public void paint(Graphics g){
+        super.paint(g);
+        g.setColor(new Color(255, 255, 255));
+        g.fillRect(10, 150, 780, 440);
+        g.setColor(new Color(0, 0, 0));
+        g.drawLine(10, 370, 780, 370);
+    }
 }
