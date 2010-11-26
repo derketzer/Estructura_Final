@@ -80,27 +80,55 @@ public class Limites extends JApplet {
 
         Modelo = new AbstractTableModel(){
             public int getColumnCount(){
+                /*
+                 * @return regresa la cantidad de columnas
+                 */
                 return Encabezados.length;
             }
             public int getRowCount(){
+                /*
+                 * @return Regresa la cantidad de filas
+                 */
                 return 1;
             }
             public Object getValueAt(int row, int col){
+                /* @param row pide la fila
+                 * @param col pide la columna
+                 * @return devuelve el valor en la fila y columna especificada
+                 */
                 return Datos[0][col];
             }
             public String getColumnName(int c){
+                /*
+                 * @param c pide la columna
+                 * @return devulve el encabezado de la columna
+                 */
                 return Encabezados[c];
             }
             public boolean isCellEditable(int row, int col){
+                /*
+                 * @param row fila
+                 * @param col columna
+                 * @return devuelve si la fila/columna es editable
+                 */
                 Datos[0][col] = valoresY[col];
                 setValueAt(Datos,col);
 
                 return false;
             }
             public void setValueAt(Object objeto, int col){
+                /*
+                 * @param objeto con los datos
+                 * @param col columna
+                 * @return nadap
+                 */
                 Tabla.repaint();
             }
             public Class getColumnClass(int c){
+                /*
+                 * @param c columna
+                 * @return Regresa el tipo de columna
+                 */
                 return getValueAt(0,c).getClass();
             }
         };
@@ -131,6 +159,15 @@ public class Limites extends JApplet {
     }
 
     private void buildConstraints(Component componente, int x, int y, int w, int h, int fill){
+        /*
+         * @param x posicion x
+         * @param y posicion y
+         * @param w ancho
+         * @param h y alto, respecto a la cantidad de elementos en los nieveles superiores
+         * @param fill dice si se llena todo el campo o no
+         * @return nadap
+         */
+
         GBC.gridx = x;
         GBC.gridy = y;
         GBC.gridwidth = w;
@@ -153,6 +190,10 @@ public class Limites extends JApplet {
     }
     
     public void paint(Graphics g){
+        /*
+         * @param g es el inicializador de graficos, que por cierto lo odie. Es tan primitivo que no me lo creo.
+         */
+
         super.paint(g);
         Graphics2D g2 = (Graphics2D)g;
         
@@ -238,6 +279,10 @@ public class Limites extends JApplet {
     }
 
     public void genera_valores(double ini, double fin){
+        /*
+         * @param ini es el valor inicial del rango
+         * @param fin es el valor final del rango
+         */
         mitad = (fin-ini)/2+ini;
         n = ini;
 
@@ -271,6 +316,10 @@ public class Limites extends JApplet {
 
     public class Eventos implements ActionListener{
         public void actionPerformed(ActionEvent e){
+            /*
+             * @param e variable que cacha quien manda a llamar al evento
+             */
+
             if(e.getSource() == rad_Fun1){
                 genera_valores(1.0, 3.0);
                 funcion = 1;
