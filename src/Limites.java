@@ -1,11 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Line2D;
 import javax.swing.table.*;
 
 /**
@@ -13,7 +9,9 @@ import javax.swing.table.*;
  * @author Der Ketzer
  * @email der.ketzer@gmail.com
  * @version 1.0
+ *
  */
+
 public class Limites extends JApplet {
     GridBagLayout Layout = new GridBagLayout();
     Container Pantalla = getContentPane();
@@ -21,7 +19,7 @@ public class Limites extends JApplet {
 
     JLabel fun1, fun2, fun3, fun4;
     String[] Encabezados;
-    Double[] valoresX;
+    Double[] valoresX, valoresY;
 
     JTable Tabla;
     TableModel Modelo;
@@ -29,54 +27,54 @@ public class Limites extends JApplet {
 
     int m=0, tam=0;
     double n=0.0, ini=0.0, fin=0.0, mitad=0.0, lim=0.0;
+    int y1=0, y2=0;
 
     Object Datos[][];
 
     String temp = "";
 
+    JRadioButton rad_Fun1, rad_Fun2, rad_Fun3, rad_Fun4;
+    ButtonGroup grp_Funs;
+
+    int iniY, finY, iniX, finX, ceroY, ceroX, funcion;
+    
     public void init() {
-        fun1 = new JLabel("f(x)=(x^2-4)/(x-2)");
-        fun2 = new JLabel("f(x)=ln(x)");
-        fun3 = new JLabel("f(x)=4/(1+x^2)");
-        fun4 = new JLabel("f(x)=blu blu");
+        Icon im1 = new ImageIcon("fun1.jpg");
+        Icon im2 = new ImageIcon("fun2.jpg");
+        Icon im3 = new ImageIcon("fun3.jpg");
+        Icon im4 = new ImageIcon("fun4.jpg");
+
+        fun1 = new JLabel(im1);
+        fun2 = new JLabel(im2);
+        fun3 = new JLabel(im3);
+        fun4 = new JLabel(im4);
+
+        grp_Funs = new ButtonGroup();
+
+        rad_Fun1 = new JRadioButton("", true);
+        rad_Fun2 = new JRadioButton("", false);
+        rad_Fun3 = new JRadioButton("", false);
+        rad_Fun4 = new JRadioButton("", false);
+
+        grp_Funs.add(rad_Fun1);
+        grp_Funs.add(rad_Fun2);
+        grp_Funs.add(rad_Fun3);
+        grp_Funs.add(rad_Fun4);
 
         Encabezados = new String[11];
         valoresX = new Double[11];
-
-        ini = 1.0;
-        fin = 3.0;
-        mitad = (fin-ini);
-        n = 0.0;
-
-        Encabezados[10] = fin+"";
-        valoresX[10] = fin;
-
-        lim = mitad;
-
-        for(m=0; m<10; m++){
-            n += (lim-n)/2.0;
-            valoresX[m] = n;
-            temp = n+"";
-
-            if(temp.length()>4)
-                temp = temp.substring(0,4);
-
-            Encabezados[m] = temp;
-
-            if(m==5){
-                Encabezados[5] = mitad+"";
-                valoresX[5] = mitad;
-                lim = fin;
-                n = mitad;
-            }
-        }
+        valoresY = new Double[11];
 
         Datos = new Object[1][11];
 
-        for(int i=0; i<1; i++){
-            for(int j=0; j<11; j++){
-                Datos[i][j] = "";
-            }
+        for(int i=0; i<11; i++){
+            Datos[0][i] = "";
+        }
+        
+        genera_valores(1.0, 3.0);
+
+        for(m=0; m<11; m++){
+            valoresY[m] = valoresX[m]+2.0;
         }
 
         Modelo = new AbstractTableModel(){
@@ -93,16 +91,13 @@ public class Limites extends JApplet {
                 return Encabezados[c];
             }
             public boolean isCellEditable(int row, int col){
+                Datos[0][col] = valoresY[col];
+                setValueAt(Datos,col);
+
                 return false;
             }
             public void setValueAt(Object objeto, int col){
                 Tabla.repaint();
-                temp = (valoresX[col]*valoresX[col] + 2.0)+"";
-
-                if(temp.length()>4)
-                    temp = temp.substring(0,4);
-
-                Datos[0][col] = temp;
             }
             public Class getColumnClass(int c){
                 return getValueAt(0,c).getClass();
@@ -118,7 +113,18 @@ public class Limites extends JApplet {
         buildConstraints(fun2, 1, 0, 1, 1, GridBagConstraints.NONE);
         buildConstraints(fun3, 2, 0, 1, 1, GridBagConstraints.NONE);
         buildConstraints(fun4, 3, 0, 1, 1, GridBagConstraints.NONE);
-        buildConstraints(Scroll, 0, 1, 4, 1, GridBagConstraints.BOTH);
+        
+        buildConstraints(rad_Fun1, 0, 1, 1, 1, GridBagConstraints.NONE);
+        buildConstraints(rad_Fun2, 1, 1, 1, 1, GridBagConstraints.NONE);
+        buildConstraints(rad_Fun3, 2, 1, 1, 1, GridBagConstraints.NONE);
+        buildConstraints(rad_Fun4, 3, 1, 3, 1, GridBagConstraints.NONE);
+
+        buildConstraints(Scroll, 0, 2, 4, 1, GridBagConstraints.BOTH);
+
+        rad_Fun1.addActionListener(new Eventos());
+        rad_Fun2.addActionListener(new Eventos());
+        rad_Fun3.addActionListener(new Eventos());
+        rad_Fun4.addActionListener(new Eventos());
 
         setSize(800,600);
     }
@@ -144,19 +150,37 @@ public class Limites extends JApplet {
 
         Tabla.repaint();
     }
-
+    
     public void paint(Graphics g){
         super.paint(g);
         g.setColor(new Color(255, 255, 255));
-        g.fillRect(10, 150, 780, 440);
+        iniY = 190;
+        finY = 400;
+        iniX = 10;
+        finX = 780;
+        ceroY = iniY+finY/2;
+        ceroX = ((finX-iniX)/2)+iniX;
+        funcion = 1;
+
+        g.fillRect(iniX, iniY, finX, finY);
 
         g.setColor(new Color(0, 0, 0));
-        g.drawLine(10, 370, 790, 370);
-        g.drawLine(400, 150, 400, 590);
+        g.drawLine(iniX, ceroY, finX+iniX, ceroY);
+        g.drawLine(ceroX, iniY, ceroX, iniY+finY);
 
         g.setColor(new Color(255, 0, 0));
-        //g.drawString("Y", 410, 170);
-        //g.drawString("X", 770, 350);
+        g.drawString("Y", ceroX+10, iniY+15);
+        g.drawString("X", finX, ceroY+15);
+
+        g.setColor(new Color(0, 0, 0));
+        int maxY = (int)(Math.ceil(valoresY[10]));
+        int pasoY = (ceroY-iniY)/maxY;
+        int pasoX = (finX-iniX)/10;
+
+        for(int j=maxY; j>=0; j--){
+            g.drawLine(ceroX-10, j*pasoY+iniY, ceroX+10, j*pasoY+iniY);
+            g.drawString(maxY-j+"", ceroX-15, j*pasoY+iniY+15);
+        }
 
         g.setColor(new Color(0, 0, 0));
         //20 es 1 en X
@@ -167,23 +191,99 @@ public class Limites extends JApplet {
         //590 es min en Y
         //220 es dif en Y
 
-        int pasoY = (int)(220/(valoresX[10]+2));
+        //double pasoY = (finY-iniY)/2;
 
-        for(int k=370; k>=150; k-=pasoY){
-            g.drawString(((370-k)/pasoY)+"", 390, k);
+        /*for(int k=(int)(finY-pasoY); k>=150; k-=pasoY){
+            g.drawString((int)((370-k)/pasoY)+"", 390, k);
+        }*/
+        //int f=0;
+
+        for(int j=iniX; j<=finX; j+=pasoX){
+            g.drawLine(j, ceroY-10, j, ceroY+10);
+            g.drawString(Encabezados[j/pasoX], j-8, ceroY+25);
+
+
+            /*if(j>20){
+                y1 = (int)(Math.floor((valoresX[f]*44+88)));
+                y2 = (int)(Math.floor((valoresX[f+1]*44+88)));
+                g.drawLine(j-76, 370-y1, j, 370-y2);
+                //g2.draw(new Line2D.Double(j-76, y1, j, y2));
+                f++;
+            }*/
         }
 
-        for(int j=20; j<=780; j+=76){
-            g.drawLine(j, 370, j, 380);
-            g.drawString(Encabezados[(j-20)/76], j-8, 395);
+        //g.drawLine(20, 370-44*3, 780, 150);
+    }
 
-            if(j>20){
-                g.drawLine(
-                        j-76,
-                        (int)((370-((valoresX[(j-96)/76]+2)*pasoY))),
-                        j,
-                        (int)((370-((valoresX[(j-20)/76]+2)*pasoY)))
-                );
+    public void genera_valores(double ini, double fin){
+        mitad = (fin-ini)/2+ini;
+        n = ini;
+
+        Encabezados[0] = ini+"";
+        valoresX[0] = ini;
+        Encabezados[10] = fin+"";
+        valoresX[10] = fin;
+
+        lim = mitad;
+
+        for(m=1; m<10; m++){
+            n += (lim-n)/2.0;
+            valoresX[m] = n;
+            temp = n+"";
+
+            if(temp.length()>4 && n>0)
+                temp = temp.substring(0,4);
+            else if(temp.length() > 4 && n < 0)
+                temp = temp.substring(0,5);
+
+            Encabezados[m] = temp;
+
+            if(m==5){
+                Encabezados[5] = mitad+"";
+                valoresX[5] = mitad;
+                lim = fin;
+                n = mitad;
+            }
+        }
+    }
+
+    public class Eventos implements ActionListener{
+        public void actionPerformed(ActionEvent e){
+            if(e.getSource() == rad_Fun1){
+                genera_valores(1.0, 3.0);
+                for(m=0; m<11; m++){
+                    valoresY[m] = valoresX[m]+2.0;
+                    Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
+                }
+                repaint();
+                limpiame();
+            }else if(e.getSource() == rad_Fun2){
+                genera_valores(0.0, 1000.0);
+                for(m=0; m<11; m++){
+                    valoresY[m] = Math.log(valoresX[m]);
+                    Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
+                }
+                repaint();
+                limpiame();
+            }else if(e.getSource() == rad_Fun3){
+                genera_valores(-2.0, 2.0);
+                for(m=0; m<11; m++){
+                    valoresY[m] = 4.0/(1.0+valoresX[m]*valoresX[m]);
+                    Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
+                }
+                repaint();
+                limpiame();
+            }else if(e.getSource() == rad_Fun4){
+                genera_valores(0.0, 2.0);
+                for(m=0; m<11; m++){
+                    if(valoresX[m]<1)
+                        valoresY[m] = 1.0-valoresX[m]*valoresX[m];
+                    else
+                        valoresY[m] = valoresX[m]+4.0;
+                    Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
+                }
+                repaint();
+                limpiame();
             }
         }
     }
