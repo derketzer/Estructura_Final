@@ -27,7 +27,7 @@ public class Limites extends JApplet {
 
     int m=0, tam=0;
     double n=0.0, ini=0.0, fin=0.0, mitad=0.0, lim=0.0;
-    int y1=0, y2=0;
+    double y1=0, y2=0;
 
     Object Datos[][];
 
@@ -72,6 +72,7 @@ public class Limites extends JApplet {
         }
         
         genera_valores(1.0, 3.0);
+        funcion = 1;
 
         for(m=0; m<11; m++){
             valoresY[m] = valoresX[m]+2.0;
@@ -153,6 +154,8 @@ public class Limites extends JApplet {
     
     public void paint(Graphics g){
         super.paint(g);
+        Graphics2D g2 = (Graphics2D)g;
+        
         g.setColor(new Color(255, 255, 255));
         iniY = 190;
         finY = 400;
@@ -160,7 +163,6 @@ public class Limites extends JApplet {
         finX = 780;
         ceroY = iniY+finY/2;
         ceroX = ((finX-iniX)/2)+iniX;
-        funcion = 1;
 
         g.fillRect(iniX, iniY, finX, finY);
 
@@ -173,7 +175,12 @@ public class Limites extends JApplet {
         g.drawString("X", finX, ceroY+15);
 
         g.setColor(new Color(0, 0, 0));
-        int maxY = (int)(Math.ceil(valoresY[10]));
+        int maxY = 0;
+        for(int j=0; j<11; j++){
+            if((int)(Math.ceil(valoresY[j])) > maxY)
+                maxY = (int)(Math.ceil(valoresY[j]));
+        }
+
         int pasoY = (ceroY-iniY)/maxY;
         int pasoX = (finX-iniX)/10;
 
@@ -182,37 +189,46 @@ public class Limites extends JApplet {
             g.drawString(maxY-j+"", ceroX-15, j*pasoY+iniY+15);
         }
 
-        g.setColor(new Color(0, 0, 0));
-        //20 es 1 en X
-        //780 es 3 en X
-
-        //370 es 0 en Y
-        //150 es max en Y
-        //590 es min en Y
-        //220 es dif en Y
-
-        //double pasoY = (finY-iniY)/2;
-
-        /*for(int k=(int)(finY-pasoY); k>=150; k-=pasoY){
-            g.drawString((int)((370-k)/pasoY)+"", 390, k);
-        }*/
-        //int f=0;
-
         for(int j=iniX; j<=finX; j+=pasoX){
             g.drawLine(j, ceroY-10, j, ceroY+10);
             g.drawString(Encabezados[j/pasoX], j-8, ceroY+25);
-
-
-            /*if(j>20){
-                y1 = (int)(Math.floor((valoresX[f]*44+88)));
-                y2 = (int)(Math.floor((valoresX[f+1]*44+88)));
-                g.drawLine(j-76, 370-y1, j, 370-y2);
-                //g2.draw(new Line2D.Double(j-76, y1, j, y2));
-                f++;
-            }*/
         }
+        
+        g.setColor(new Color(0, 0, 0));
 
-        //g.drawLine(20, 370-44*3, 780, 150);
+        Line2D line;
+
+        double bla = (((ceroY-iniY)/maxY)*(10.0/maxY))/(finX-iniX);
+        double ble = ((iniY+finY)/(10.0/maxY))/maxY;
+
+        for(int j=iniX+1; j<=finX; j++){
+            switch(funcion){
+                case 1:
+                    y1 = ((j-11.0))*bla+ble*2.0;
+                    y2 = (j-10.0)*bla+ble*2.0;
+                break;
+                case 2:
+                    y1 = Math.log(j-11.0)*ble/2.0;
+                    y2 = Math.log(j-10.0)*ble/2.0;
+                break;
+                case 3:
+                    y1 = ble*4.0/(bla*1.0-((j-11.0)*bla));
+                    y2 = ble*4.0/(bla*1.0-((j-01.0)*bla));
+                break;
+                case 4:
+                    if(j<ceroX){
+                        y1 = ble*0.6-((j-11.0)*bla*1.3);
+                        y2 = ble*0.6-((j-10.0)*bla*1.3);
+                    }else{
+                        y1 = ((j-11.0))*bla+ble*2.38;
+                        y2 = (j-10.0)*bla+ble*2.38;
+                    }
+                break;
+            }
+
+            line = new Line2D.Double(j-1, ceroY-y1, j, ceroY-y2);
+            g2.draw(line);
+        }
     }
 
     public void genera_valores(double ini, double fin){
@@ -251,6 +267,7 @@ public class Limites extends JApplet {
         public void actionPerformed(ActionEvent e){
             if(e.getSource() == rad_Fun1){
                 genera_valores(1.0, 3.0);
+                funcion = 1;
                 for(m=0; m<11; m++){
                     valoresY[m] = valoresX[m]+2.0;
                     Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
@@ -259,6 +276,7 @@ public class Limites extends JApplet {
                 limpiame();
             }else if(e.getSource() == rad_Fun2){
                 genera_valores(0.0, 1000.0);
+                funcion = 2;
                 for(m=0; m<11; m++){
                     valoresY[m] = Math.log(valoresX[m]);
                     Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
@@ -267,6 +285,7 @@ public class Limites extends JApplet {
                 limpiame();
             }else if(e.getSource() == rad_Fun3){
                 genera_valores(-2.0, 2.0);
+                funcion = 3;
                 for(m=0; m<11; m++){
                     valoresY[m] = 4.0/(1.0+valoresX[m]*valoresX[m]);
                     Tabla.getColumnModel().getColumn(m).setHeaderValue(Encabezados[m]);
@@ -275,6 +294,7 @@ public class Limites extends JApplet {
                 limpiame();
             }else if(e.getSource() == rad_Fun4){
                 genera_valores(0.0, 2.0);
+                funcion = 4;
                 for(m=0; m<11; m++){
                     if(valoresX[m]<1)
                         valoresY[m] = 1.0-valoresX[m]*valoresX[m];
