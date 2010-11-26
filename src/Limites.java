@@ -200,6 +200,7 @@ public class Limites extends JApplet {
 
         double bla = (((ceroY-iniY)/maxY)*(10.0/maxY))/(finX-iniX);
         double ble = ((iniY+finY)/(10.0/maxY))/maxY;
+        double turu = 0.0;
 
         for(int j=iniX+1; j<=finX; j++){
             switch(funcion){
@@ -212,8 +213,13 @@ public class Limites extends JApplet {
                     y2 = Math.log(j-10.0)*ble/2.0;
                 break;
                 case 3:
-                    y1 = ble*4.0/(bla*1.0-((j-11.0)*bla));
-                    y2 = ble*4.0/(bla*1.0-((j-01.0)*bla));
+                    if(j<ceroX)
+                        turu = ceroX-j;
+                    else
+                        turu = ceroX-j;
+
+                    y1 = ble*4.0/(bla*1.0+((turu-11.0)*bla*(turu-11.0)));
+                    y2 = ble*4.0/(bla*1.0+((turu-10.0)*bla*(turu-10.0)));
                 break;
                 case 4:
                     if(j<ceroX){
